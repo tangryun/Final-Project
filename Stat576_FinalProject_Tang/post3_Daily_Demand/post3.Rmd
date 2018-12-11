@@ -1,0 +1,158 @@
+---
+title: "post3"
+author: "Rongyun Tang"
+date: "December 11, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Daily Demand Forecasting Orders Data  
+
+research outlines:
+
+1. Objective:task is to determine what kind of order resources contribute most to the information, and then to reduce data dimentions. 
+
+2. Method: CPA 
+
+3. Data Source:this "Daily Demand Forecasting Orders Data(DDFOD)" dataset was downloaded from  UCI Machine Learning website: https://archive.ics.uci.edu/ml/datasets/Daily+Demand+Forecasting+Orders.
+ The dataset was collected during 60 days, this is a real database of a brazilian logistics company.Twelve predictive attributes and a target that is the total of orders for daily treatment.
+
+=======================================================================================================
+
+Attribute Information: 
+
+=======================================================================================================
+
+he dataset was collected during 60 days, this is a real database of a brazilian logistics company. The dataset has twelve predictive attributes and a target that is the total of orders for daily treatment. The database was used in academic research at the Universidade Nove de Julho.
+.arff header for Weka:
+
+Week_of_the_month (WM): {1.0, 2.0, 3.0, 4.0, 5.0}
+Day_of_the_week_(Monday_to_Friday)(DW): {2.0, 3.0, 4.0, 5.0, 6.0}
+Non_urgent_order(NUO): integer
+Urgent order(UO): integer
+Order type A(typeA): integer
+Order type B(typeB): integer
+Order type C(typeC):integer
+Fiscal sector orders(FO): integer
+Orders from the traffic controller sector(Traffic): integer
+Banking orders (1)(Bank1): integer
+Banking orders (2)(Bank2): integer
+Banking orders (3)(Bank3): integer
+Target(Total_orders)(Total):integer
+
+## 1. Data Preprocessing 
+
+```{r data preprocessing}
+# Rename column names and Read data
+rawdata <- read.csv('Daily_Demand_Forecasting_Orders2.csv')
+head(rawdata)
+DOY<-as.factor(rawdata$WM*30+rawdata$DW)    # transfer week of month and day of week into day of year(DOY)
+data2<-cbind(DOY,rawdata[,3:13])
+head(data2)
+
+```
+
+## 2.Data Exploration
+
+```{r numerial data exploration}
+
+# Missing value detection 
+sum(is.na(data2))
+print("Numbers of missing values : 0")
+
+
+# Data Correlationships
+
+#install.packages("ggcorrplot")
+library('ggcorrplot')
+corr <- round(cor(data2[,c(-1,-12)]), 1)
+head(corr[, 1:6])
+ggcorrplot(corr, hc.order = TRUE, type = "lower",lab = TRUE)
+
+# Resutls show that there are many variables mutually correlated, dimension could be reduced with PCA method.
+```
+
+## 3. PCA and Visualization
+
+```{r }
+# 3.1 apply PCA
+
+library(factoextra)
+data.pca <- prcomp(data2[,c(-1,-12)], center = TRUE,scale. = TRUE)
+summary(data.pca)
+
+# 3.12 results: PC1 explains 44% of the total variance,  PC2 explains 16% of the variance , PC3 expalins 15% of the total variance
+
+fviz_eig(data.pca)
+
+#3.2 Individuals with a similar profile are grouped together
+fviz_pca_ind(data.pca,  
+             col.ind = "cos2", # Color by the quality of representation
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     # Avoid text overlapping
+             )
+
+library(devtools)
+library(ggbiplot)
+ggbiplot(data.pca, labels=colnames(data2))
+
+
+# 3.3 Variables with a similar profile are grouped together
+#     Positive correlated variables point to the same side of the plot. Negative correlated variables point to o           opposite sides of the graph.
+fviz_pca_var(data.pca,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     # Avoid text overlapping
+             )
+# 3.32 results: NUO(not urgent orders) and Bank1 are two most strong positive-correlated variables. Bank3 and FO have opposite correlationship. NUO,Bank1 and typeC are three main contributorS to PAC. 
+
+# 3.4 Biplot of individuals and variables
+fviz_pca_biplot(data.pca, repel = TRUE,
+                col.var = "#2E9FDF", # Variables color
+                col.ind = "#696969"  # Individuals color
+                )
+```
+
+## 4. PCA results
+
+```{r PCA results}
+library(factoextra)
+# Eigenvalues
+eig.val <- get_eigenvalue(data.pca)
+eig.val
+  
+# Results for Variables
+res.var <- get_pca_var(data.pca)
+head(res.var$coord)          # Coordinates
+head(res.var$contrib)        # Contributions to the PCs
+head(res.var$cos2)  # Quality of representation 
+library("corrplot")
+corrplot(res.var$cos2, is.corr=FALSE)
+
+# Results for individuals
+res.ind <- get_pca_ind(data.pca)
+head(res.ind$coord)         # Coordinates
+head(res.ind$contrib)        # Contributions to the PCs
+head(res.ind$cos2)          # Quality of representation 
+corrplot(res.ind$cos2,is.corr=FALSE)
+
+```
+
+
+
+## 5. Conclusion
+
+```{r}
+# Analysis: 
+
+# 1. 13 variables of the raw data could be reduced by 2 PCA principles. 
+
+# 2. NUO contributes most to the effective information,  followed by type B and Bank2.
+
+# 3. individual comtribution shows that types C has seasonal attribute, and it reaches maxmiu contribution in April. 
+
+
+```
+

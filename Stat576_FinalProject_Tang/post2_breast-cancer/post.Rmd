@@ -1,0 +1,308 @@
+---
+title: "post2"
+author: "Rongyun Tang"
+date: "December 10, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Breast Cancer  
+
+research outlines:
+
+1. Objective:task is to determine what kind of a person are probabilty to have bread cancer based on blood analysis data.
+
+2. Method: k-means clustering and hierachical clustering 
+
+3. Data Source:this "breast cancer" dataset was downloaded from  UCI Machine Learning website: https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Coimbra#.
+Clinical features were observed or measured for 64 patients with breast cancer and 52 healthy controls.
+There are 10 predictors, all quantitative, and a binary dependent variable, indicating the presence or absence of breast cancer. The predictors are anthropometric data and parameters which can be gathered in routine blood analysis. 
+Prediction models based on these predictors, if accurate, can potentially be used as a biomarker of breast cancer.
+
+=======================================================================================================
+
+Attribute Information: 
+
+=======================================================================================================
+Listing of attributes: 
+Quantitative Attributes: 
+Age (years) 
+BMI (kg/m2) 
+Glucose (mg/dL) 
+Insulin (µU/mL) 
+HOMA 
+Leptin (ng/mL) 
+Adiponectin (µg/mL) 
+Resistin (ng/mL) 
+MCP-1(pg/dL) 
+
+Labels: 
+1=Healthy controls 
+2=Patients
+
+## 1. Data preprocessing 
+
+```{r read data & normalize data}
+rawdata <- read.csv('dataR2.csv')
+head(rawdata)
+
+data<-scale(rawdata[,1:9])
+head(data)
+
+```
+
+
+```{r missing values & outliers}
+
+# identify count of NAs in data frame
+sum(is.na(data))
+print("Numbers of missing values : 0 ")
+
+# outliers detection
+library(DMwR)
+outlier.scores <- lofactor(data, k=5)
+plot(density(outlier.scores))
+outliers <- order(outlier.scores, decreasing=T)[1:5]
+print("Top 5 outliers are: ")
+print(outliers) # who are outliers
+n <- nrow(rawdata[,1:9])
+
+# In case that outliers might be key factors to determine breast cancer, we didn't delete outliers here. 
+pch <- rep(".", n) # show outliers 
+pch[outliers] <- "+"
+col <- rep("black", n)
+col[outliers] <- "red"
+pairs(rawdata[,1:9], pch=pch, col=col)
+
+```
+
+## 2. Data exploration
+
+```{r correlation of variables}
+library(reshape2)
+library(ggplot2)
+# Compute the correlation matrix
+cormat <- round(cor(data),2) 
+head(cormat)
+
+# Difine functions to reorder the correlation matrix 
+ get_upper_tri <- function(cormat){
+    cormat[lower.tri(cormat)]<- NA
+    return(cormat)
+  }
+reorder_cormat <- function(cormat){
+dd <- as.dist((1-cormat)/2) # Use correlation between variables as distance
+hc <- hclust(dd)
+cormat <-cormat[hc$order, hc$order]
+}
+# Reorder the correlation matrix
+cormat <- reorder_cormat(cormat)
+upper_tri <- get_upper_tri(cormat)
+# Melt the correlation matrix
+melted_cormat <- melt(upper_tri, na.rm = TRUE)
+# Create a ggheatmap
+ggheatmap <- ggplot(melted_cormat, aes(Var2, Var1, fill = value))+
+ geom_tile(color = "white")+
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+   midpoint = 0, limit = c(-1,1), space = "Lab", 
+    name="Pearson\nCorrelation") +
+  theme_minimal()+ # minimal theme
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+    size = 12, hjust = 1))+
+ coord_fixed()
+# Print the heatmap
+ggheatmap + 
+geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) +
+theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.border = element_blank(),
+  panel.background = element_blank(),
+  axis.ticks = element_blank(),
+  legend.justification = c(1, 0),
+  legend.position = c(0.6, 0.7),
+  legend.direction = "horizontal")+
+  guides(fill = guide_colorbar(barwidth = 7, barheight = 1,
+                title.position = "top", title.hjust = 0.5))
+
+#DATA ANALYSIS: 
+
+#1. most of variables have low correlation coefficents(-0.3~ 0.4)
+
+#2. only HOMA have relatively high correlation coefficents with insulin(0.97) and glusose(0.7).  
+
+#3. adiponectin have low negtive correlationships with all of other variables.
+
+```
+
+
+## 3. K-means Clustering 
+
+```{r clustering with k-means}
+
+# determining number of clusters 
+
+#pkgs <- c("factoextra",  "NbClust")
+#install.packages(pkgs)
+library(factoextra)
+library(NbClust)
+
+# 1. Elbow method
+fviz_nbclust(data, kmeans, method = "wss") +
+    geom_vline(xintercept = 4, linetype = 2)+
+  labs(subtitle = "Elbow method")
+
+# 2. Silhouette method
+fviz_nbclust(data, kmeans, method = "silhouette")+
+  labs(subtitle = "Silhouette method")
+
+# 3. Gap statistic
+set.seed(123)
+fviz_nbclust(data, kmeans, nstart = 25,  method = "gap_stat", nboot = 50)+
+  labs(subtitle = "Gap statistic method")
+
+# We considered silhouette method as optimal method, and potentially hoped to seperate normal people and patients with k-means clustering method. 
+fit <- kmeans(data, 2)
+fit         # print all available components
+kcenter<-fit$center  # centers of each variable
+kcluster<-fit$cluster # cluster ID for each observation
+#fit$cluster<-factor("healthy","patient")
+fviz_cluster(fit, data = data, geom = "point",
+             stand = FALSE, frame.type = "norm")
+
+help("fviz_cluster")
+```
+
+## 4. K-means Clustering  Validation
+
+```{r k-means validataion}
+# exract real classes from raw data 
+real.class=rawdata[,10] #
+real.class
+
+# relable k-means clusters 
+relable<-fit$cluster
+relable[relable==2] <-0 # exchange lable 1 and lable 2 of k-means clusters
+relable[relable==1] <-2
+relable[relable==0] <-1
+relable
+
+# extract dfference between real classes lables and labled k-means clusters 
+difference=real.class-relable
+difference
+
+# accuracy
+
+accuracy.kmeans=length(difference[difference=='0'])/length(difference)
+accuracy.kmeans
+
+print("k-means accuracy is: 56%")
+
+```
+
+
+## 5. Hierarchical Clustering 
+
+```{r hierarchical clustering}
+
+library('dendextend')
+library("cluster")
+
+# Best Cluster Number 
+nb <- NbClust(data, distance = "euclidean", min.nc = 2,
+        max.nc = 10, method = "complete", index ="all")
+
+fviz_nbclust(nb) + theme_minimal()
+
+
+# Dissimilarity matrix
+d <- dist(data, method = "euclidean") # distance matrix
+
+# Complete Linkage
+hc.cp <- hclust(d, method = "complete" )
+
+# Single Linkage
+hc.sg <- hclust(d, method = "single" )
+
+# Average Linkage
+hc.av <- hclust(d, method = "average" )
+
+# Centroid Linkage
+hc.ct <- hclust(d, method = "centroid" )
+
+# Ward.D2 Linkage
+hc.wd <- hclust(d,method = "ward")
+
+# Ward.D2 Linkage
+hc.wd2 <- hclust(d,method = "ward.D2")
+
+# Mcquitty Linkage
+hc.mq <- hclust(d, method = "mcquitty" )
+
+# Plot the obtained dendrogram
+plot(hc.cp, cex = 0.6, hang = -1)
+rect.hclust(hc.cp, k = 2, border = 2:4) 
+plot(hc.sg, cex = 0.6, hang = -1)
+rect.hclust(hc.sg, k = 2, border = 2:4) 
+plot(hc.av, cex = 0.6, hang = -1)
+rect.hclust(hc.av, k = 2, border = 2:4) 
+plot(hc.ct, cex = 0.6, hang = -1)
+rect.hclust(hc.ct, k = 2, border = 2:4) 
+plot(hc.wd, cex = 0.6, hang = -1)
+rect.hclust(hc.wd, k = 2, border = 2:4) 
+plot(hc.wd2, cex = 0.6, hang = -1)
+rect.hclust(hc.wd2, k = 2, border = 2:4) 
+
+print("ward linkage and ward.D2 linkage produce best clustering results")
+```
+
+## 6. Hierarchical Clustering Validation
+```{r cut tree and validataion }
+# Cut into 2 groups
+hc.cut <- cutree(hc.wd, k = 2)
+hc.cut
+# extract dfference between real classes lables and labled groups
+difference.hc=real.class-hc.cut
+difference.hc
+
+# accuracy
+
+accuracy.hc.ward=length(difference.hc[difference.hc=='0'])/length(difference.hc)
+accuracy.hc.ward
+
+print("hierarchical method accuracy is: 52.6%")
+
+```
+
+```{r data analysis}
+
+sub1=subset(data,hc.cut==1)
+summary(sub1)
+
+sub2=subset(data,hc.cut==2)
+summary(sub2)
+
+
+```
+
+## 7. Conclusions
+
+```{r conclusions}
+# In this project, we used k-means and hierachical clustering methods and blood analysis variables to predict normal people and breast cancer patients. Then, known lables (normal or patients) are used to calculate clustering accuracy and evaluate prediction abilities. Research results showed that:
+ 
+#1. Both two methods have moderate ability (~ 50%) to predict potential breast cancer patients.
+
+
+#2.  K-means method had a higher predictiong accuracy(56%) than hierarchical clustering method(52.6%)
+ 
+
+#3. result of K-mean method showed that breast cancer patients have much higer age, BMI, Glucose,insulin,HOMA,leptin and resistin than healthy controled people. 
+
+#2. adiponectin and MCP.1 show very few difference between patients and healthy ones. 
+
+
+```

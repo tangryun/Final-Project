@@ -2,7 +2,9 @@
 title: "post1"
 author: "Rongyun Tang"
 date: "December 11, 2018"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -149,8 +151,13 @@ paste('accuracy of association rule1,rule2,rule3,rule4 and rule5 are:',round(acc
 
 ## 5. conclusions
 
-1. numerical statistic analysis showed that people have higher average age, higher average education years and higher weekly work hours are more likely to have income >50K. 
+```{r}
+#1. numerical statistic analysis showed that people have higher average age, higher average education years and higher weekly work hours are more likely to have income >50K. 
 
-2. association rules listed in this project showed good accuracies: rule1(91%),rule2(91%),rule3(89%),rule4(91%),rule5(91%). 
+#2. association rules listed in this project showed good accuracies: rule1(91%),rule2(91%),rule3(89%),rule4(91%),rule5(91%). 
 
-3. association rules showed that people who have master degrees, work privately married male with an Exec-managerial occupation have large possibilities(>80%) to have salaries more than 50,000. 
+#3. association rules showed that people who have master degrees, work privately married male with an Exec-managerial occupation have large possibilities(>80%) to have salaries more than 50,000. 
+```
+
+
+

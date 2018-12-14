@@ -3,7 +3,7 @@ title: "post1-association rules"
 author: "Rongyun Tang"
 date: "December 11, 2018"
 output: 
-      pdf_document
+      rmarkdown::github_document
         
 ---
 

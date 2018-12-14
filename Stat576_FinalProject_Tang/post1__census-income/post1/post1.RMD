@@ -157,6 +157,8 @@ paste('accuracy of association rule1,rule2,rule3,rule4 and rule5 are:',round(acc
 
 #3. association rules showed that people who have master degrees, work privately married male with an Exec-managerial occupation have large possibilities(>80%) to have salaries more than 50,000. 
 
+rmarkdown::render("post1.RMD", run_pandoc = FALSE, clean = FALSE)
+
 ```
 
 

@@ -1,9 +1,10 @@
 ---
-title: "post1"
+title: "post1-association rules"
 author: "Rongyun Tang"
 date: "December 11, 2018"
 output: 
-       pdf_document
+      rmarkdown::github_document
+        
 ---
 
 ```{r setup, include=FALSE}
@@ -43,8 +44,9 @@ hours-per-week: continuous.
 native-country: United-States, Cambodia, England, Puerto-Rico, Canada, Germany, Outlying-US(Guam-USVI-etc), India, Japan, Greece, South, China, Cuba, Iran, Honduras, Philippines, Italy, Poland, Jamaica, Vietnam, Mexico, Portugal, Ireland, France, Dominican-Republic, Laos, Ecuador, Taiwan, Haiti, Columbia, Hungary, Guatemala, Nicaragua, Scotland, Thailand, Yugoslavia, El-Salvador, Trinadad&Tobago, Peru, Hong, Holand-Netherlands.
 
 
-```{r initialization}
+
 ## 1. Data preprocessing
+```{r initialization}
 training.data <- as.data.frame(read.csv('adult.data'))
 test.data <- as.data.frame(read.csv('adult.test', skip=1))
 content <- readLines('old.adult.names')
@@ -70,7 +72,7 @@ i <- grep("Attribute Information",content) + 2
 ```
 
 
-```{r data preprocessing: missing values detection}
+```{r}
 #install.packages('VIM')
 library("VIM")
 
@@ -101,9 +103,12 @@ par(mfrow=c(1,1))
 
 numerical data distribution analysis: 
 
-1. In group that income >50k, people are more likely to have higher average age, higher average education years and higher weekly work hours than whose income is <=50K. 
+- In group that income >50k, people are more likely to have higher average age, higher average education years and higher weekly work hours than whose income is <=50K. 
 
-2. Weight shows no difference in these two classes. 
+- Weight shows no difference in these two classes. 
+
+
+
 
 ## 3. association rules of categorial variables 
 
@@ -120,7 +125,7 @@ rules <- apriori(training,
 
 inspect(sort(rules, by="lift", decreasing = TRUE)[1:5])
 ```
-## 4. association rules validation
+## 4. validation for association rules 
 
 ```{r  association rule validatiion on testing data}
 # using test data and comfusion matrix to test the results 
@@ -150,11 +155,11 @@ paste('accuracy of association rule1,rule2,rule3,rule4 and rule5 are:',round(acc
 
 ## 5. conclusions
 
-#1. numerical statistic analysis showed that people have higher average age, higher average education years and higher weekly work hours are more likely to have income >50K. 
+- numerical statistic analysis showed that people have higher average age, higher average education years and higher weekly work hours are more likely to have income >50K. 
 
-#2. association rules listed in this project showed good accuracies: rule1(91%),rule2(91%),rule3(89%),rule4(91%),rule5(91%). 
+- association rules listed in this project showed good accuracies: rule1(91%),rule2(91%),rule3(89%),rule4(91%),rule5(91%). 
 
-#3. association rules showed that people who have master degrees, work privately married male with an Exec-managerial occupation have large possibilities(>80%) to have salaries more than 50,000. 
+- association rules showed that people who have master degrees, work privately married male with an Exec-managerial occupation have large possibilities(>89%) to have salaries more than 50,000. 
 
 
 

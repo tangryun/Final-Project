@@ -70,6 +70,33 @@ i <- grep("Attribute Information",content) + 2
 
 ```r
   head(training.data) 
+```
+
+```
+##   age         workclass fnlwgt  education educationnum
+## 1  50  Self-emp-not-inc  83311  Bachelors           13
+## 2  38           Private 215646    HS-grad            9
+## 3  53           Private 234721       11th            7
+## 4  28           Private 338409  Bachelors           13
+## 5  37           Private 284582    Masters           14
+## 6  49           Private 160187        9th            5
+##            maritalstatus         occupation   relationship   race     sex
+## 1     Married-civ-spouse    Exec-managerial        Husband  White    Male
+## 2               Divorced  Handlers-cleaners  Not-in-family  White    Male
+## 3     Married-civ-spouse  Handlers-cleaners        Husband  Black    Male
+## 4     Married-civ-spouse     Prof-specialty           Wife  Black  Female
+## 5     Married-civ-spouse    Exec-managerial           Wife  White  Female
+## 6  Married-spouse-absent      Other-service  Not-in-family  Black  Female
+##   capitalgain capitalloss hoursperweek  nativecountry  class
+## 1           0           0           13  United-States  <=50K
+## 2           0           0           40  United-States  <=50K
+## 3           0           0           40  United-States  <=50K
+## 4           0           0           40           Cuba  <=50K
+## 5           0           0           40  United-States  <=50K
+## 6           0           0           16        Jamaica  <=50K
+```
+
+```r
   cat("Number of observations:",N.obs,"
 
      Number of variables:",N.var,"\n")
@@ -305,14 +332,12 @@ paste('accuracy of association rule1,rule2,rule3,rule4 and rule5 are:',round(acc
 
 ## 5. conclusions
 
-
-```r
 #1. numerical statistic analysis showed that people have higher average age, higher average education years and higher weekly work hours are more likely to have income >50K. 
 
 #2. association rules listed in this project showed good accuracies: rule1(91%),rule2(91%),rule3(89%),rule4(91%),rule5(91%). 
 
 #3. association rules showed that people who have master degrees, work privately married male with an Exec-managerial occupation have large possibilities(>80%) to have salaries more than 50,000. 
-```
+
 
 
 

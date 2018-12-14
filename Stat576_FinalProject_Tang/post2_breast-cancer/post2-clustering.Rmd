@@ -1,8 +1,10 @@
 ---
-title: "post2"
+title: "post2-clustering"
 author: "Rongyun Tang"
 date: "December 10, 2018"
-output: html_document
+output: 
+       rmarkdown::github_document
+
 ---
 
 ```{r setup, include=FALSE}
@@ -22,26 +24,27 @@ Clinical features were observed or measured for 64 patients with breast cancer a
 There are 10 predictors, all quantitative, and a binary dependent variable, indicating the presence or absence of breast cancer. The predictors are anthropometric data and parameters which can be gathered in routine blood analysis. 
 Prediction models based on these predictors, if accurate, can potentially be used as a biomarker of breast cancer.
 
-=======================================================================================================
+==================================================================================
 
 Attribute Information: 
 
-=======================================================================================================
-Listing of attributes: 
-Quantitative Attributes: 
-Age (years) 
-BMI (kg/m2) 
-Glucose (mg/dL) 
-Insulin (µU/mL) 
-HOMA 
-Leptin (ng/mL) 
-Adiponectin (µg/mL) 
-Resistin (ng/mL) 
-MCP-1(pg/dL) 
+==================================================================================
 
-Labels: 
-1=Healthy controls 
-2=Patients
+- Listing of attributes: 
+- Quantitative Attributes: 
+- Age (years) 
+- BMI (kg/m2) 
+- Glucose (mg/dL) 
+- Insulin (µU/mL) 
+- HOMA 
+- Leptin (ng/mL) 
+- Adiponectin (µg/mL) 
+- Resistin (ng/mL) 
+- MCP-1(pg/dL) 
+
+- Labels: 
+- 1=Healthy controls 
+- 2=Patients
 
 ## 1. Data preprocessing 
 
@@ -55,7 +58,7 @@ head(data)
 ```
 
 
-```{r missing values & outliers}
+```{r}
 
 # identify count of NAs in data frame
 sum(is.na(data))
@@ -129,16 +132,15 @@ theme(
   guides(fill = guide_colorbar(barwidth = 7, barheight = 1,
                 title.position = "top", title.hjust = 0.5))
 
-#DATA ANALYSIS: 
-
-#1. most of variables have low correlation coefficents(-0.3~ 0.4)
-
-#2. only HOMA have relatively high correlation coefficents with insulin(0.97) and glusose(0.7).  
-
-#3. adiponectin have low negtive correlationships with all of other variables.
-
 ```
 
+DATA ANALYSIS: 
+
+- most of variables have low correlation coefficents(-0.3~ 0.4)
+
+- only HOMA have relatively high correlation coefficents with insulin(0.97) and glusose(0.7).  
+
+- adiponectin have low negtive correlationships with all of other variables.
 
 ## 3. K-means Clustering 
 
@@ -173,11 +175,9 @@ kcluster<-fit$cluster # cluster ID for each observation
 #fit$cluster<-factor("healthy","patient")
 fviz_cluster(fit, data = data, geom = "point",
              stand = FALSE, frame.type = "norm")
-
-help("fviz_cluster")
 ```
 
-## 4. K-means Clustering  Validation
+## 4. Validation for K-means Clustering  
 
 ```{r k-means validataion}
 # exract real classes from raw data 
@@ -260,7 +260,7 @@ rect.hclust(hc.wd2, k = 2, border = 2:4)
 print("ward linkage and ward.D2 linkage produce best clustering results")
 ```
 
-## 6. Hierarchical Clustering Validation
+## 6. Validation for Hierarchical Clustering 
 ```{r cut tree and validataion }
 # Cut into 2 groups
 hc.cut <- cutree(hc.wd, k = 2)
@@ -291,18 +291,14 @@ summary(sub2)
 
 ## 7. Conclusions
 
-```{r conclusions}
-# In this project, we used k-means and hierachical clustering methods and blood analysis variables to predict normal people and breast cancer patients. Then, known lables (normal or patients) are used to calculate clustering accuracy and evaluate prediction abilities. Research results showed that:
+
+In this project, we used k-means and hierachical clustering methods and blood analysis variables to predict normal people and breast cancer patients. Then, known lables (normal or patients) are used to calculate clustering accuracy and evaluate prediction abilities. Research results showed that:
  
-#1. Both two methods have moderate ability (~ 50%) to predict potential breast cancer patients.
+- Both two methods have moderate ability (~ 50%) to predict potential breast cancer patients.
 
 
-#2.  K-means method had a higher predictiong accuracy(56%) than hierarchical clustering method(52.6%)
+- K-means method had a higher predictiong accuracy(56%) than hierarchical clustering method(52.6%)
  
+- Result of K-mean method showed that breast cancer patients have much higer age, BMI, Glucose,insulin,HOMA,leptin and resistin than healthy controled people. 
 
-#3. result of K-mean method showed that breast cancer patients have much higer age, BMI, Glucose,insulin,HOMA,leptin and resistin than healthy controled people. 
-
-#2. adiponectin and MCP.1 show very few difference between patients and healthy ones. 
-
-
-```
+- Adiponectin and MCP.1 show very few difference between patients and healthy ones. 

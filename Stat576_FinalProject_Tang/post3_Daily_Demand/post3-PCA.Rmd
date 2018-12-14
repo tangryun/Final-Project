@@ -1,8 +1,9 @@
 ---
-title: "post3"
+title: "post3-PCA"
 author: "Rongyun Tang"
 date: "December 11, 2018"
-output: html_document
+output: 
+       rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -19,28 +20,27 @@ research outlines:
 3. Data Source:this "Daily Demand Forecasting Orders Data(DDFOD)" dataset was downloaded from  UCI Machine Learning website: https://archive.ics.uci.edu/ml/datasets/Daily+Demand+Forecasting+Orders.
  The dataset was collected during 60 days, this is a real database of a brazilian logistics company.Twelve predictive attributes and a target that is the total of orders for daily treatment.
 
-=======================================================================================================
+===================================================================================
 
 Attribute Information: 
 
-=======================================================================================================
+===================================================================================
 
-he dataset was collected during 60 days, this is a real database of a brazilian logistics company. The dataset has twelve predictive attributes and a target that is the total of orders for daily treatment. The database was used in academic research at the Universidade Nove de Julho.
-.arff header for Weka:
+The dataset was collected during 60 days, this is a real database of a brazilian logistics company. The dataset has twelve predictive attributes and a target that is the total of orders for daily treatment. 
 
-Week_of_the_month (WM): {1.0, 2.0, 3.0, 4.0, 5.0}
-Day_of_the_week_(Monday_to_Friday)(DW): {2.0, 3.0, 4.0, 5.0, 6.0}
-Non_urgent_order(NUO): integer
-Urgent order(UO): integer
-Order type A(typeA): integer
-Order type B(typeB): integer
-Order type C(typeC):integer
-Fiscal sector orders(FO): integer
-Orders from the traffic controller sector(Traffic): integer
-Banking orders (1)(Bank1): integer
-Banking orders (2)(Bank2): integer
-Banking orders (3)(Bank3): integer
-Target(Total_orders)(Total):integer
+- Week_of_the_month (WM): {1.0, 2.0, 3.0, 4.0, 5.0}
+- Day_of_the_week_(Monday_to_Friday)(DW): {2.0, 3.0, 4.0, 5.0, 6.0}
+- Non_urgent_order(NUO): integer
+- Urgent order(UO): integer
+- Order type A(typeA): integer
+- Order type B(typeB): integer
+- Order type C(typeC):integer
+- Fiscal sector orders(FO): integer
+- Orders from the traffic controller sector(Traffic): integer
+- Banking orders (1)(Bank1): integer
+- Banking orders (2)(Bank2): integer
+- Banking orders (3)(Bank3): integer
+- Target(Total_orders)(Total):integer
 
 ## 1. Data Preprocessing 
 
@@ -144,15 +144,12 @@ corrplot(res.ind$cos2,is.corr=FALSE)
 
 ## 5. Conclusion
 
-```{r}
-# Analysis: 
 
-# 1. 13 variables of the raw data could be reduced by 2 PCA principles. 
+- 13 variables of the raw data could be reduced by 2 PCA principles. 
 
-# 2. NUO contributes most to the effective information,  followed by type B and Bank2.
+- NUO contributes most to the effective information,  followed by type B and Bank2.
 
-# 3. individual comtribution shows that types C has seasonal attribute, and it reaches maxmiu contribution in April. 
+- individual comtribution shows that types C has seasonal attribute, and it reaches maxmiu contribution in April. 
 
 
-```
 

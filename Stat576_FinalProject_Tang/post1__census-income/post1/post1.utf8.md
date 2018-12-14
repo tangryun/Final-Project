@@ -2,9 +2,8 @@
 title: "post1"
 author: "Rongyun Tang"
 date: "December 11, 2018"
-output:
-  pdf_document: default
-  html_document: default
+output: 
+       pdf_document
 ---
 
 
